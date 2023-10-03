@@ -1,7 +1,7 @@
 import React from "react";
 
 const LandingTask = () => {
-  return <div>LandingTask modified</div>;
+  return <div>LandingTask</div>;
 };
 
 export default LandingTask;
