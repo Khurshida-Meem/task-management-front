@@ -17,21 +17,14 @@ const LandingTask = () => {
 
   const reorder = (result) => {
     console.log(result);
-    const { source, destination, type } = result;
+    const { source, destination } = result;
     if (!destination) {
       return;
     }
     const sourceIndex = source.index;
     const destIndex = destination.index;
-
-    if (type === "parentContainer") {
-      move(sourceIndex, destIndex);
-    } else if (type === "childContainer" && source.droppableId) {
-      const reorderChild = childrenRef.current[source.droppableId];
-      if (reorderChild) {
-        reorderChild(sourceIndex, destIndex);
-      }
-    }
+    move(sourceIndex, destIndex);
+    
   };
 
   console.log(fields);
