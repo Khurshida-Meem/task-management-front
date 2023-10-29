@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { useFieldArray, useForm } from "react-hook-form";
 
 // fake data generator
 const getItems = (count) =>
@@ -41,6 +42,16 @@ const getListStyle = (isDraggingOver) => ({
 const DndDemo = () => {
   const [items, setItems] = useState(getItems(10));
 
+  const { register, control, handleSubmit, reset, trigger, setError } = useForm(
+    {
+      // defaultValues: {}; you can populate the fields by this attribute
+    }
+  );
+  const { fields, append, remove, move } = useFieldArray({
+    control,
+    name: "test",
+  });
+
   const onDragEnd = (result) => {
     // dropped outside the list
     if (!result.destination) {
@@ -48,7 +59,7 @@ const DndDemo = () => {
     }
 
     const tempItems = reorder(
-      items,
+      fields,
       result.source.index,
       result.destination.index
     );
@@ -57,36 +68,38 @@ const DndDemo = () => {
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable">
-        {(provided, snapshot) => (
-          <div
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-            style={getListStyle(snapshot.isDraggingOver)}
-          >
-            {items.map((item, index) => (
-              <Draggable key={item.id} draggableId={item.id} index={index}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    style={getItemStyle(
-                      snapshot.isDragging,
-                      provided.draggableProps.style
-                    )}
-                  >
-                    {item.content}
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <form onSubmit={handleSubmit((data) => console.log(data))}>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable">
+          {(provided, snapshot) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              style={getListStyle(snapshot.isDraggingOver)}
+            >
+              {fields.map((item, index) => (
+                <Draggable key={item.id} draggableId={item.id} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={getItemStyle(
+                        snapshot.isDragging,
+                        provided.draggableProps.style
+                      )}
+                    >
+                      {item.content}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </form>
   );
 };
 
