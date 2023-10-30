@@ -34,7 +34,7 @@ const LandingTask = () => {
   const onSubmit = (data) => console.log("data", data);
 
   return (
-    <Container>
+    <Container sx={{ mt: 2 }}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DragDropContext onDragEnd={reorder}>
           <Droppable droppableId="parent" type="parentContainer">
@@ -44,7 +44,8 @@ const LandingTask = () => {
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {fields.map((item, index) => {
+                {fields?.map((item, index) => {
+                  console.log(provided, "provided");
                   return (
                     <Draggable
                       key={item.id}
@@ -65,7 +66,7 @@ const LandingTask = () => {
                           >
                             <TextField
                               sx={{ m: 2 }}
-                              {...register(`test.${index}.firstName`)}
+                              {...register(`testy.${index}.firstName`)}
                               id="outlined-basic"
                               label="First Name"
                               variant="outlined"
@@ -73,7 +74,7 @@ const LandingTask = () => {
                             />
                             <TextField
                               sx={{ m: 2 }}
-                              {...register(`test.${index}.lastName`)}
+                              {...register(`testy.${index}.lastName`)}
                               id="outlined-basic"
                               label="Last Name"
                               variant="outlined"
@@ -97,13 +98,89 @@ const LandingTask = () => {
                   );
                 })}
                 {provided.placeholder}
+                <div className="m-2">
+                  <Button
+                    variant="contained"
+                    onClick={() => append({ value: "0" })}
+                  >
+                    Append
+                  </Button>
+                </div>
+              </Stack>
+            )}
+          </Droppable>
+          <Droppable droppableId="parent-1" type="parentContainer">
+            {(provided) => (
+              <Stack
+                sx={{ backgroundColor: "blue" }}
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {fields?.testy?.map((item, index) => {
+                  return (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                        >
+                          <div
+                            style={{
+                              backgroundColor: "lightgrey",
+                              margin: "8px",
+                            }}
+                            {...provided.dragHandleProps}
+                          >
+                            <TextField
+                              sx={{ m: 2 }}
+                              {...register(`testy.${index}.firstName`)}
+                              id="outlined-basic"
+                              label="First Name"
+                              variant="outlined"
+                              size="small"
+                            />
+                            <TextField
+                              sx={{ m: 2 }}
+                              {...register(`testy.${index}.lastName`)}
+                              id="outlined-basic"
+                              label="Last Name"
+                              variant="outlined"
+                              size="small"
+                            />
+
+                            <Button
+                              sx={{ mt: 2 }}
+                              variant="contained"
+                              type="button"
+                              onClick={() => remove(index)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
+                <div className="m-2">
+                  <Button
+                    variant="contained"
+                    onClick={() => append({ value: "0" })}
+                  >
+                    Append
+                  </Button>
+                </div>
               </Stack>
             )}
           </Droppable>
           <div className="mt-2">
-            <Button variant="contained" onClick={() => append({ value: "0" })}>
-              Append
-            </Button>
             <Button variant="contained" type="submit">
               Submit
             </Button>
