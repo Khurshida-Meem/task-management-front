@@ -4,12 +4,9 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useFieldArray, useForm } from "react-hook-form";
 
 const LandingTask = () => {
-  const { register, control, handleSubmit, reset, trigger, setError } = useForm(
-    {
-      // defaultValues: {}; you can populate the fields by this attribute
-    }
-  );
-  const { fields, append, remove, move } = useFieldArray({
+  const { control, register, handleSubmit } = useForm({});
+
+  const { fields, append, move, remove } = useFieldArray({
     control,
     name: "test",
   });
@@ -17,99 +14,178 @@ const LandingTask = () => {
 
   const reorder = (result) => {
     console.log(result);
-    const { source, destination } = result;
+    const { source, destination, type } = result;
     if (!destination) {
       return;
     }
     const sourceIndex = source.index;
     const destIndex = destination.index;
-    move(sourceIndex, destIndex);
-    
+
+    if (type === "parentContainer") {
+      move(sourceIndex, destIndex);
+    } else if (type === "childContainer" && source.droppableId) {
+      const reorderChild = childrenRef.current[source.droppableId];
+      if (reorderChild) {
+        reorderChild(sourceIndex, destIndex);
+      }
+    }
   };
 
-  console.log(fields);
+  const onSubmit = (data) => console.log("data", data);
+
   return (
-    <Container className="mt-2">
-      <form onSubmit={handleSubmit((data) => console.log(data))}>
+    <Container sx={{ mt: 2 }}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DragDropContext onDragEnd={reorder}>
           <Droppable droppableId="parent" type="parentContainer">
-            {(provided, snapshot) => (
+            {(provided) => (
               <Stack
-                direction="column"
+                sx={{ backgroundColor: "blue" }}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
-                {fields.map((item, index) => (
-                  <Draggable
-                    key={item?.keyId}
-                    draggableId={item?.keyId.toString()}
-                    index={index}
-                  >
-                    {(customStageProvided) => (
-                      <div
-                        ref={customStageProvided.innerRef}
-                        {...customStageProvided.draggableProps}
-                        {...customStageProvided.dragHandleProps}
-                        style={{
-                          backgroundColor: "lightgrey",
-                          margin: "8px",
-                        }}
-                      >
-                        <div>
-                          <TextField
-                            sx={{ m: 2 }}
-                            {...register(`test.${index}.firstName`)}
-                            id="outlined-basic"
-                            label="First Name"
-                            variant="outlined"
-                            size="small"
-                          />
-                          <TextField
-                            sx={{ m: 2 }}
-                            {...register(`test.${index}.lastName`)}
-                            id="outlined-basic"
-                            label="Last Name"
-                            variant="outlined"
-                            size="small"
-                          />
-                          <Button
-                            sx={{ mt: 2 }}
-                            variant="contained"
-                            type="button"
-                            onClick={() => remove(index)}
+                {fields?.map((item, index) => {
+                  console.log(provided, "provided");
+                  return (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                        >
+                          <div
+                            style={{
+                              backgroundColor: "lightgrey",
+                              margin: "8px",
+                            }}
+                            {...provided.dragHandleProps}
                           >
-                            Delete
-                          </Button>
+                            <TextField
+                              sx={{ m: 2 }}
+                              {...register(`testy.${index}.firstName`)}
+                              id="outlined-basic"
+                              label="First Name"
+                              variant="outlined"
+                              size="small"
+                            />
+                            <TextField
+                              sx={{ m: 2 }}
+                              {...register(`testy.${index}.lastName`)}
+                              id="outlined-basic"
+                              label="Last Name"
+                              variant="outlined"
+                              size="small"
+                            />
+
+                            <Button
+                              sx={{ mt: 2 }}
+                              variant="contained"
+                              type="button"
+                              onClick={() => remove(index)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+
+                          {provided.placeholder}
                         </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
+                      )}
+                    </Draggable>
+                  );
+                })}
                 {provided.placeholder}
+                <div className="m-2">
+                  <Button
+                    variant="contained"
+                    onClick={() => append({ value: "0" })}
+                  >
+                    Append
+                  </Button>
+                </div>
               </Stack>
             )}
           </Droppable>
-        </DragDropContext>
+          <Droppable droppableId="parent-1" type="parentContainer">
+            {(provided) => (
+              <Stack
+                sx={{ backgroundColor: "blue" }}
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {fields?.testy?.map((item, index) => {
+                  return (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                        >
+                          <div
+                            style={{
+                              backgroundColor: "lightgrey",
+                              margin: "8px",
+                            }}
+                            {...provided.dragHandleProps}
+                          >
+                            <TextField
+                              sx={{ m: 2 }}
+                              {...register(`testy.${index}.firstName`)}
+                              id="outlined-basic"
+                              label="First Name"
+                              variant="outlined"
+                              size="small"
+                            />
+                            <TextField
+                              sx={{ m: 2 }}
+                              {...register(`testy.${index}.lastName`)}
+                              id="outlined-basic"
+                              label="Last Name"
+                              variant="outlined"
+                              size="small"
+                            />
 
-        <div className="ml-2">
-          <Button
-            type="button"
-            variant="contained"
-            onClick={() => {
-              console.log(fields.length);
-              append({
-                keyId: fields.length + 1,
-                firstName: "",
-                lastName: "",
-              });
-            }}
-          >
-            append
-          </Button>
-          <Button sx={{ ml: 2 }} type="submit" variant="contained">
-            Submit
-          </Button>
-        </div>
+                            <Button
+                              sx={{ mt: 2 }}
+                              variant="contained"
+                              type="button"
+                              onClick={() => remove(index)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
+                <div className="m-2">
+                  <Button
+                    variant="contained"
+                    onClick={() => append({ value: "0" })}
+                  >
+                    Append
+                  </Button>
+                </div>
+              </Stack>
+            )}
+          </Droppable>
+          <div className="mt-2">
+            <Button variant="contained" type="submit">
+              Submit
+            </Button>
+          </div>
+        </DragDropContext>
       </form>
     </Container>
   );
